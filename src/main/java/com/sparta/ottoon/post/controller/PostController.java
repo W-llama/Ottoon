@@ -9,6 +9,8 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collections;
@@ -27,8 +29,9 @@ public class PostController {
     // 게시글 등록
     @Operation(summary = "createPost", description = "게시글 생성 기능입니다.")
     @PostMapping("/posts")
-    public ResponseEntity<PostResponseDto> create(@Valid @RequestBody PostRequestDto postRequestDto) {
-        PostResponseDto post = postService.save(postRequestDto);
+    public ResponseEntity<PostResponseDto> create(@Valid @RequestBody PostRequestDto postRequestDto,
+                                                  @AuthenticationPrincipal UserDetails userDetails) {
+        PostResponseDto post = postService.save(postRequestDto, userDetails.getUsername());
         return ResponseEntity.status(HttpStatus.CREATED).body(post);
     }
 
@@ -61,15 +64,17 @@ public class PostController {
     // 게시글 수정
     @Operation(summary = "updatePost", description = "게시글 수정 기능입니다.")
     @PutMapping("/posts/{postId}")
-    public ResponseEntity<PostResponseDto> update(@PathVariable(name = "postId") long postId, @Valid @RequestBody PostRequestDto postRequestDto) {
-        return ResponseEntity.ok().body(postService.update(postId, postRequestDto));
+    public ResponseEntity<PostResponseDto> update(@PathVariable(name = "postId") long postId, @Valid @RequestBody PostRequestDto postRequestDto,
+                                                  @AuthenticationPrincipal UserDetails userDetails) {
+        return ResponseEntity.ok().body(postService.update(postId, postRequestDto, userDetails.getUsername()));
     }
 
     //게시글 삭제
     @Operation(summary = "deletePost", description = "게시글 삭제 기능입니다.")
     @DeleteMapping("/posts/{postId}")
-    public ResponseEntity<Map<String, Object>> delete(@PathVariable(name = "postId") long postId) {
-        postService.delete(postId);
+    public ResponseEntity<Map<String, Object>> delete(@PathVariable(name = "postId") long postId,
+                                                      @AuthenticationPrincipal UserDetails userDetails) {
+        postService.delete(postId, userDetails.getUsername());
         Map<String, Object> response = new HashMap<>();
         response.put("statusCode", HttpStatus.OK.value());
         response.put("message", "게시글 삭제 완료");

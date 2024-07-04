@@ -33,9 +33,8 @@ public class PostService {
     private final LikeRepository likeRepository;
 
     @Transactional
-    public PostResponseDto save(PostRequestDto postRequestDto) {
-        Long logInUserId = getLogInUserId();
-        User user = getUserById(logInUserId);
+    public PostResponseDto save(PostRequestDto postRequestDto,String username) {
+        User user = findByUserByUsername(username);
         Post post = postRequestDto.toEntity();
         post.updateUser(user);
         post = postRepository.save(post);
@@ -68,13 +67,12 @@ public class PostService {
     }
 
     @Transactional
-    public PostResponseDto update(long postId, PostRequestDto postRequestDto) {
+    public PostResponseDto update(long postId, PostRequestDto postRequestDto, String username) {
         Post post = findPostById(postId);
-        Long logInUserId = getLogInUserId();
-        User user = getUserById(logInUserId);
+        User user = findByUserByUsername(username);
 
         // 본인 계정 혹은 관리자 계정이면 게시글 수정 가능
-        if (logInUserId.equals(post.getUser().getId()) || user.getStatus().equals(UserStatus.ADMIN)) {
+        if (user.getId().equals(post.getUser().getId()) || user.getStatus().equals(UserStatus.ADMIN)) {
             post.update(postRequestDto.getContents());
             Long likeCount = likeRepository.countByPost(post);
 
@@ -86,13 +84,12 @@ public class PostService {
     }
 
     @Transactional
-    public void delete(long postId) {
+    public void delete(long postId, String username) {
         Post post = findPostById(postId);
-        Long logInUserId = getLogInUserId();
-        User user = getUserById(logInUserId);
+        User user = findByUserByUsername(username);
 
         // 본인 계정 혹은 관리자 계정이면 게시글 삭제 가능
-        if (logInUserId.equals(post.getUser().getId()) || user.getStatus().equals(UserStatus.ADMIN)) {
+        if (user.getId().equals(post.getUser().getId()) || user.getStatus().equals(UserStatus.ADMIN)) {
             postRepository.delete(post);
             PostResponseDto.toDeleteResponse("게시글 삭제 완료", 200);
         } else {
@@ -100,20 +97,11 @@ public class PostService {
         }
     }
 
+    private User findByUserByUsername(String username) {
+        return userRepository.findByUsername(username).orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+    }
+
     private Post findPostById(long postId) {
         return postRepository.findById(postId).orElseThrow(() -> new CustomException(ErrorCode.BAD_POST_ID));
     }
-
-    private User getUserById(Long userId) {
-        return userRepository.findById(userId).orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
-    }
-
-    private Long getLogInUserId() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String username = authentication.getName();
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
-        return user.getId();
-    }
-
 }

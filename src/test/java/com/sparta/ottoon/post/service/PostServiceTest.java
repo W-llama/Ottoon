@@ -68,7 +68,7 @@ class PostServiceTest extends OttoonApplicationTests {
         // given
         PostRequestDto requestDto = new PostRequestDto("게시글 생성");
         // when
-        PostResponseDto responseDto = PostService.save(requestDto);
+        PostResponseDto responseDto = PostService.save(requestDto, user.getUsername());
 
         // then
         Post createPost = PostRepository.findById(responseDto.getPostId()).orElse(null);
@@ -90,10 +90,11 @@ class PostServiceTest extends OttoonApplicationTests {
             int page = 0;
             // when
             List<PostResponseDto> responseDto = PostService.getAll(page);
+            Long likecount = 0L;
             List<PostResponseDto> sortedPosts = posts.stream()
                     .sorted(Comparator.comparing(Post::isTop).reversed()
                             .thenComparing(Post::getId).reversed())
-                    .map(post -> PostResponseDto.toDto("전체 게시글 조회 완료", 200, post))
+                    .map(post -> PostResponseDto.toDto("전체 게시글 조회 완료", 200, post, likecount))
                     .toList();
             // then
             assertEquals(sortedPosts.get(0).getContents(), responseDto.get(0).getContents());
@@ -129,7 +130,7 @@ class PostServiceTest extends OttoonApplicationTests {
             PostRequestDto requestDto = new PostRequestDto("게시물 업데이트_본인");
 
             // when
-            PostResponseDto responseDto = PostService.update(postId, requestDto);
+            PostResponseDto responseDto = PostService.update(postId, requestDto, user.getUsername());
 
             // then
             assertEquals(requestDto.getContents(), responseDto.getContents());
@@ -149,7 +150,7 @@ class PostServiceTest extends OttoonApplicationTests {
             PostRequestDto requestDto = new PostRequestDto("게시물 업데이트_admin");
 
             // when
-            PostResponseDto responseDto = PostService.update(postId, requestDto);
+            PostResponseDto responseDto = PostService.update(postId, requestDto, user.getUsername());
 
             // then
             assertEquals(requestDto.getContents(), responseDto.getContents());
@@ -173,7 +174,7 @@ class PostServiceTest extends OttoonApplicationTests {
 
             // when
             CustomException exception = assertThrows(CustomException.class,
-                    () -> PostService.update(postId, requestDto));
+                    () -> PostService.update(postId, requestDto, another.getUsername()));
 
             // then
             assertEquals(exception.getErrorCode(), ErrorCode.BAD_AUTH_PUT);
@@ -189,7 +190,7 @@ class PostServiceTest extends OttoonApplicationTests {
             // given
             Long postId = posts.get(0).getId();
             // when
-            PostService.delete(postId);
+            PostService.delete(postId, user.getUsername());
 
             // then
             CustomException exception = assertThrows(CustomException.class,
@@ -209,7 +210,7 @@ class PostServiceTest extends OttoonApplicationTests {
 
             // when
             CustomException exception = assertThrows(CustomException.class,
-                    () -> PostService.delete(postId));
+                    () -> PostService.delete(postId, user.getUsername()));
             //then
             assertEquals(exception.getErrorCode(), ErrorCode.BAD_AUTH_DELETE);
         }
