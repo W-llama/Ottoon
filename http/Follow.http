@@ -1,0 +1,14 @@
+### GET request to example server
+GET https://examples.http-client.intellij.net/get
+    ?generated-in=IntelliJ IDEA
+
+### 팔로우 추가
+POST http://localhost:8080/api/follows/users/{{userId}}
+Content-Type: application/json
+Authorization: {{at}}
+
+
+### 팔로우 취소
+PUT http://localhost:8080/api/follows/users/{{userId}}
+Content-Type: application/json
+Authorization: {{at}}

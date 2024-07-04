@@ -1,0 +1,30 @@
+### GET request to example server
+GET https://examples.http-client.intellij.net/get
+    ?generated-in=IntelliJ IDEA
+
+### 프로필 조회
+GET https://localhost:8080/api/users/{{userName}}
+Content-Type: application/json
+Authorization: {{at}}
+
+
+### 프로필 수정
+POST https://localhost:8080/api/users/{{userName}}
+Content-Type: application/json
+Authorization: {{at}}
+
+{
+  "nickname": "testU",
+  "intro": "테스트유저입니다."
+}
+
+###비밀번호 변경
+POST http://localhost:8080/api/users/{{userName}}/password
+Content-Type: application/json
+Authorization: {{at}}
+
+{
+  "oldPassword": "testPassword!",
+  "newPassword": "newtestPassord!"
+}
+

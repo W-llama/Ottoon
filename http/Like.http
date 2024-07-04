@@ -1,0 +1,23 @@
+### GET request to example server
+GET https://examples.http-client.intellij.net/get
+    ?generated-in=IntelliJ IDEA
+
+### 게시글 좋아요/삭제
+POST http://localhost:8080/api/post/{{postId}}/like
+Content-Type: application/json
+Authorization: {{at}}
+
+### 게시글 좋아요 조회
+GET http://localhost:8080/api/post/{postId}/like
+Content-Type: application/json
+Authorization: {{at}}
+
+### 댓글 좋아요/삭제
+POST http://localhost:8080/api/comment/{{commentId}}/like
+Content-Type: application/json
+Authorization: {{at}}
+
+### 댓글 조회
+PUT http://localhost:8080/api/comment/{{commentId}}/like
+Content-Type: application/json
+Authorization: {{at}}
