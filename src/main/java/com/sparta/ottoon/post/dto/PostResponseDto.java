@@ -24,13 +24,14 @@ public class PostResponseDto {
     private LocalDateTime createdAt;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime modifiedAt;
+    private Long likeCount;
 
     public PostResponseDto(Post post) {
-        new PostResponseDto("", 0, post.getId(), post.getContents(), post.getCreatedAt(), post.getModifiedAt());
+        new PostResponseDto("", 0, post.getId(), post.getContents(), post.getCreatedAt(), post.getModifiedAt(), likeCount);
     }
 
     //게시글 등록, 수정, 조회
-    public static PostResponseDto toDto(String message, int statusCode, Post post) {
+    public static PostResponseDto toDto(String message, int statusCode, Post post, Long likeCount) {
         return PostResponseDto.builder()
                 .message(message)
                 .statusCode(statusCode)
@@ -38,6 +39,7 @@ public class PostResponseDto {
                 .contents(post.getContents())
                 .createdAt(post.getCreatedAt())
                 .modifiedAt(post.getModifiedAt())
+                .likeCount(likeCount)
                 .build();
     }
 
